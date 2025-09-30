@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(222, 84%, 4%);
+  --foreground: hsl(210, 40%, 98%);
+  --card: hsl(222, 84%, 5%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --popover: hsl(222, 84%, 5%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --primary: hsl(186, 100%, 42%);
+  --primary-foreground: hsl(222, 84%, 4%);
+  --secondary: hsl(160, 84%, 39%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --muted: hsl(215, 32%, 27%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --accent: hsl(217, 91%, 60%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 62%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --border: hsl(215, 32%, 27%);
+  --input: hsl(215, 32%, 27%);
+  --ring: hsl(186, 100%, 42%);
+  --chart-1: hsl(186, 100%, 42%);
+  --chart-2: hsl(160, 84%, 39%);
+  --chart-3: hsl(217, 91%, 60%);
+  --chart-4: hsl(42, 86%, 55%);
+  --chart-5: hsl(0, 62%, 60%);
+  --radius: 0.5rem;
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-mono: JetBrains Mono, Consolas, monospace;
+}
+
+.dark {
+  --background: hsl(222, 84%, 4%);
+  --foreground: hsl(210, 40%, 98%);
+  --card: hsl(222, 84%, 5%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --popover: hsl(222, 84%, 5%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --primary: hsl(186, 100%, 42%);
+  --primary-foreground: hsl(222, 84%, 4%);
+  --secondary: hsl(160, 84%, 39%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --muted: hsl(215, 32%, 27%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --accent: hsl(217, 91%, 60%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 62%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --border: hsl(215, 32%, 27%);
+  --input: hsl(215, 32%, 27%);
+  --ring: hsl(186, 100%, 42%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: var(--font-sans);
+  }
+
+  html {
+    @apply dark;
+  }
+}
+
+@layer components {
+  .glassmorphism {
+    background: rgba(17, 24, 39, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+  }
+  
+  .neon-border {
+    border: 1px solid rgba(6, 182, 212, 0.5);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+  }
+  
+  .chart-grid {
+    background-image: 
+      linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  .candlestick-green {
+    background: linear-gradient(to bottom, #10B981, #059669);
+  }
+  
+  .candlestick-red {
+    background: linear-gradient(to bottom, #EF4444, #DC2626);
+  }
+  
+  .pulse-glow {
+    animation: pulse-glow 2s infinite;
+  }
+  
+  .trading-panel {
+    transition: all 0.3s ease;
+  }
+  
+  .trading-panel:hover {
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 5px rgba(6, 182, 212, 0.4); 
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.8); 
+  }
+}
