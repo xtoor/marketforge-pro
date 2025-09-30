@@ -1,6 +1,6 @@
 <div align="center">
 
-![MarketForge-Pro Banner](text=MarketForge-Pro)
+![MarketForge-Pro Banner](final_chart_screenshot.png)
 
 # 📈 MarketForge-Pro
 
