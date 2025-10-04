@@ -391,7 +391,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Issues**: [GitHub Issues](https://github.com/xtoor/marketforge-pro/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/xtoor/marketforge-pro/discussions)
-- **Email**: support@marketforge-pro.dev
+- **Discord**: https://discord.gg/ZzJwbFswHz
 
 ---
 
@@ -403,6 +403,7 @@ MarketForge-Pro is currently under active development and may contain bugs and i
 
 ## 🙏 Acknowledgments
 
+- Resonance Breakout Scanner for integration - https://github.com/metteyyaX/resonance.ai-scannerv13
 - TradingView for inspiration
 - The open-source community for various libraries and tools
 - All contributors who help make this project better
@@ -413,7 +414,8 @@ MarketForge-Pro is currently under active development and may contain bugs and i
 
 **⭐ Star this repository if you find it useful! ⭐**
 
-Made with ❤️ by the MarketForge-Pro community
+Made with ❤️ by the Resonance.ai community
+
 
 [⬆ Back to Top](#-marketforge-pro)
 
