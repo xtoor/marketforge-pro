@@ -22,7 +22,7 @@ interface IndicatorPanelProps {
   onUpdateIndicator: (id: string, updates: Partial<IndicatorConfig>) => void;
 }
 
-const INDICATOR_TYPES = [
+const INDICATOR_TYPES: Array<{ value: string; label: string; defaultParams: Record<string, number> }> = [
   { value: 'sma', label: 'Simple Moving Average (SMA)', defaultParams: { period: 20 } },
   { value: 'ema', label: 'Exponential Moving Average (EMA)', defaultParams: { period: 20 } },
   { value: 'rsi', label: 'Relative Strength Index (RSI)', defaultParams: { period: 14 } },

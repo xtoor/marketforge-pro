@@ -6,6 +6,44 @@ MarketForge Pro is a comprehensive trading platform that combines real-time mark
 
 ## Recent Changes
 
+### October 4, 2025
+1. **TypeScript Error Resolution**: Fixed all client-side and server-side TypeScript compilation errors:
+   - Added explicit types for INDICATOR_TYPES constant in IndicatorPanel.tsx
+   - Created IndicatorData interface for proper typing of indicator responses
+   - Added queryFn implementations to all React Query hooks
+   - Fixed missing drawings methods in MemStorage implementation
+
+2. **Alert Monitoring System**: Implemented backend alert monitoring service:
+   - AlertMonitor class with 10-second check interval
+   - Price-based alert condition checking (above, below, crosses_above, crosses_below)
+   - WebSocket broadcast for triggered alerts
+   - Automatic integration with server lifecycle
+
+3. **Error Boundary Component**: Added comprehensive error handling:
+   - React ErrorBoundary with graceful fallback UI
+   - Development mode error details display
+   - Reset and reload functionality
+   - Integrated into App.tsx root component
+
+4. **Enhanced WebSocket Integration**: Significantly improved WebSocket hook:
+   - Automatic reconnection with configurable attempts (default 5)
+   - Connection status tracking (Connecting, Connected, Disconnected, Error)
+   - Callback support for all WebSocket events
+   - Proper cleanup and memory management
+   - Manual disconnect/reconnect controls
+
+5. **Python Executor Utility**: Created centralized Python subprocess management:
+   - Cross-platform Python command handling (python3 on Unix, python on Windows)
+   - 30-second default timeout with force-kill fallback
+   - JSON input/output handling
+   - Proper error propagation and timeout detection
+
+6. **Production Security Improvements**: Enhanced security for production deployments:
+   - Conditional error details based on NODE_ENV
+   - Input validation for all API parameters
+   - Sanitized numeric parameters with bounds checking
+   - Protected sensitive error messages from client exposure
+
 ### September 30, 2025
 1. **Drawing Tool Buttons**: Fixed non-functional drawing tool buttons (cursor, trendline, horizontal line, fibonacci) by connecting them to the drawing store with proper onClick handlers and active state highlighting.
 

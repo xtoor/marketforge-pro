@@ -21,10 +21,20 @@ export default function Alerts() {
 
   const { data: alerts = [], isLoading } = useQuery<any[]>({
     queryKey: ['/api/alerts', mockUserId],
+    queryFn: async () => {
+      const response = await fetch(`/api/alerts/${mockUserId}`);
+      if (!response.ok) throw new Error('Failed to fetch alerts');
+      return response.json();
+    },
   });
 
   const { data: symbols = [] } = useQuery<Symbol[]>({
     queryKey: ['/api/symbols'],
+    queryFn: async () => {
+      const response = await fetch('/api/symbols');
+      if (!response.ok) throw new Error('Failed to fetch symbols');
+      return response.json();
+    },
   });
 
   const createAlertMutation = useMutation({

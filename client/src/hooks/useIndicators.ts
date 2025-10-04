@@ -9,6 +9,22 @@ export interface IndicatorConfig {
   color?: string;
 }
 
+export interface IndicatorData {
+  values?: number[];
+  macd?: number[];
+  signal?: number[];
+  histogram?: number[];
+  upper?: number[];
+  middle?: number[];
+  lower?: number[];
+  '%K'?: number[];
+  '%D'?: number[];
+  adx?: number[];
+  di_plus?: number[];
+  di_minus?: number[];
+  [key: string]: any;
+}
+
 export function useIndicator(
   symbolId: string,
   timeframe: string,
@@ -16,8 +32,21 @@ export function useIndicator(
   params: Record<string, string | number> = {},
   enabled: boolean = true
 ) {
-  return useQuery({
+  return useQuery<IndicatorData>({
     queryKey: ['/api/indicators', symbolId, timeframe, indicatorType, params],
+    queryFn: async () => {
+      const queryString = new URLSearchParams(
+        Object.entries(params).reduce((acc, [key, value]) => {
+          acc[key] = value.toString();
+          return acc;
+        }, {} as Record<string, string>)
+      ).toString();
+      const url = `/api/indicators/${symbolId}/${timeframe}/${indicatorType}${queryString ? `?${queryString}` : ''}`;
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch indicator data');
+      return response.json();
+    },
     enabled: enabled && !!symbolId && !!timeframe && !!indicatorType,
     staleTime: 60000, // 1 minute
     refetchInterval: 60000, // Refetch every minute

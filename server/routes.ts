@@ -7,17 +7,20 @@ import {
   insertOrderSchema, insertPositionSchema, insertAlertSchema,
   insertStrategySchema, insertBacktestSchema, insertDrawingSchema, updateDrawingSchema
 } from "@shared/schema";
-import { spawn } from "child_process";
 import path from "path";
+import { spawn } from "child_process";
 import { marketDataService } from "./marketDataService";
+import { executePythonWithJSON } from "./pythonExecutor";
+import { createAlertMonitor } from "./alertMonitor";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
   // WebSocket server for real-time market data
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
-  
+
   const connectedClients = new Set<WebSocket>();
+  let marketDataInterval: NodeJS.Timeout | null = null;
 
   wss.on('connection', (ws) => {
     connectedClients.add(ws);
@@ -26,7 +29,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     ws.on('message', async (message) => {
       try {
         const data = JSON.parse(message.toString());
-        
+
         // Handle different message types
         switch (data.type) {
           case 'subscribe':
@@ -37,7 +40,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               status: 'success'
             }));
             break;
-            
+
           case 'unsubscribe':
             // Unsubscribe from symbol updates
             ws.send(JSON.stringify({
@@ -68,13 +71,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   };
 
-  // Simulate real-time market data updates
-  setInterval(() => {
+  // Simulate real-time market data updates (only if clients are connected)
+  marketDataInterval = setInterval(() => {
+    if (connectedClients.size === 0) return; // Skip if no clients connected
+
     const symbols = ['BTCUSDT', 'ETHUSDT', 'AAPL'];
     const symbol = symbols[Math.floor(Math.random() * symbols.length)];
     const price = 40000 + Math.random() * 20000;
     const change = (Math.random() - 0.5) * 5;
-    
+
     broadcastMarketData({
       type: 'price_update',
       symbol,
@@ -83,6 +88,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       timestamp: new Date().toISOString()
     });
   }, 2000);
+
+  // Initialize alert monitoring system
+  const alertMonitor = createAlertMonitor(connectedClients);
+  alertMonitor.start();
+
+  // Clean up interval on server close
+  httpServer.on('close', () => {
+    if (marketDataInterval) {
+      clearInterval(marketDataInterval);
+      marketDataInterval = null;
+    }
+    alertMonitor.stop();
+  });
 
   // API Routes
 
@@ -110,11 +128,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/market-data/:symbolId/:timeframe", async (req, res) => {
     try {
       const { symbolId, timeframe } = req.params;
-      const limit = parseInt(req.query.limit as string) || 100;
-      
+
+      if (!symbolId || !timeframe) {
+        return res.status(400).json({ message: "Symbol ID and timeframe are required" });
+      }
+
+      const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 100, 1), 1000); // Limit between 1-1000
+
+      // Verify symbol exists
+      const symbol = await storage.getSymbol(symbolId);
+      if (!symbol) {
+        return res.status(404).json({ message: "Symbol not found" });
+      }
+
       // Ensure market data exists (will fetch from CoinGecko if missing)
       await marketDataService.ensureMarketDataExists(symbolId, timeframe);
-      
+
       const data = await storage.getMarketData(symbolId, timeframe, limit);
       res.json(data);
     } catch (error) {
@@ -128,10 +157,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { symbolId, timeframe, indicatorType } = req.params;
       const params = req.query;
-      
+
+      if (!symbolId || !timeframe || !indicatorType) {
+        return res.status(400).json({ message: "Symbol ID, timeframe, and indicator type are required" });
+      }
+
+      // Verify symbol exists
+      const symbol = await storage.getSymbol(symbolId);
+      if (!symbol) {
+        return res.status(404).json({ message: "Symbol not found" });
+      }
+
       // Ensure market data exists
       await marketDataService.ensureMarketDataExists(symbolId, timeframe);
-      
+
       // Get OHLCV data
       const marketData = await storage.getMarketData(symbolId, timeframe, 500);
       
@@ -151,55 +190,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         params: params
       };
-      
-      // Call Python indicators script
+
+      // Call Python indicators script with timeout
       const pythonPath = path.join(process.cwd(), 'python', 'indicator_calculator.py');
-      const pythonProcess = spawn('python3', [pythonPath, JSON.stringify(indicatorInput)]);
-      
-      let output = '';
-      let errorOutput = '';
-      
-      pythonProcess.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-      
-      pythonProcess.stderr.on('data', (data) => {
-        errorOutput += data.toString();
-      });
-      
-      pythonProcess.on('close', (code) => {
-        if (code === 0) {
-          try {
-            const result = JSON.parse(output);
-            
-            // Transform indicator values into chart-ready format with timestamps
-            if (result.values && Array.isArray(result.values)) {
-              const chartData = result.values
-                .map((value: any, index: number) => ({
-                  time: marketData[index]?.timestamp ? Math.floor(new Date(marketData[index].timestamp).getTime() / 1000) : null,
-                  value: typeof value === 'number' && !isNaN(value) ? value : null
-                }))
-                .filter((item: any) => item.value !== null && item.time != null)
-                .sort((a: any, b: any) => a.time - b.time);
-              
-              res.json(chartData);
-            } else if (result.error) {
-              res.status(500).json({ message: result.error });
-            } else {
-              res.json(result);
-            }
-          } catch (parseError) {
-            console.error("Failed to parse Python output:", output);
-            res.status(500).json({ message: "Invalid indicator calculation result" });
-          }
-        } else {
-          console.error("Python indicator error:", errorOutput);
-          res.status(500).json({ 
-            message: "Failed to calculate indicators",
-            error: errorOutput 
-          });
-        }
-      });
+      const result = await executePythonWithJSON(pythonPath, indicatorInput, { timeout: 30000 });
+
+      if (!result.success) {
+        console.error("Python indicator error:", result.error);
+        return res.status(500).json({
+          message: result.timedOut ? "Indicator calculation timed out" : "Failed to calculate indicators",
+          ...(process.env.NODE_ENV !== 'production' && { error: result.error })
+        });
+      }
+
+      const indicatorData = result.data;
+
+      // Transform indicator values into chart-ready format with timestamps
+      if (indicatorData.values && Array.isArray(indicatorData.values)) {
+        const chartData = indicatorData.values
+          .map((value: any, index: number) => ({
+            time: marketData[index]?.timestamp ? Math.floor(new Date(marketData[index].timestamp).getTime() / 1000) : null,
+            value: typeof value === 'number' && !isNaN(value) ? value : null
+          }))
+          .filter((item: any) => item.value !== null && item.time != null)
+          .sort((a: any, b: any) => a.time - b.time);
+
+        res.json(chartData);
+      } else {
+        res.json(indicatorData);
+      }
     } catch (error) {
       console.error("Indicator calculation error:", error);
       res.status(500).json({ message: "Failed to calculate indicators" });
@@ -358,7 +377,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Execute Python strategy
       const pythonPath = path.join(process.cwd(), 'python', 'strategy_engine.py');
-      const pythonProcess = spawn('python', [pythonPath, strategy.pythonCode]);
+      const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+      const pythonProcess = spawn(pythonCmd, [pythonPath, strategy.pythonCode]);
       
       let output = '';
       let errorOutput = '';
@@ -379,10 +399,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             timestamp: new Date().toISOString()
           });
         } else {
-          res.status(500).json({ 
-            status: 'error', 
-            error: errorOutput,
-            timestamp: new Date().toISOString()
+          res.status(500).json({
+            status: 'error',
+            timestamp: new Date().toISOString(),
+            ...(process.env.NODE_ENV !== 'production' && { error: errorOutput })
           });
         }
       });
@@ -436,8 +456,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         initialCapital: backtestData.initialCapital
       };
 
-      const pythonProcess = spawn('python', [
-        pythonPath, 
+      const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+      const pythonProcess = spawn(pythonCmd, [
+        pythonPath,
         JSON.stringify(backtestConfig)
       ]);
       
@@ -469,15 +490,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             res.json(updatedBacktest);
           } catch (parseError) {
-            res.status(500).json({ 
+            res.status(500).json({
               message: "Failed to parse backtest results",
-              error: output 
+              ...(process.env.NODE_ENV !== 'production' && { error: output })
             });
           }
         } else {
-          res.status(500).json({ 
+          res.status(500).json({
             message: "Backtest failed",
-            error: errorOutput 
+            ...(process.env.NODE_ENV !== 'production' && { error: errorOutput })
           });
         }
       });
@@ -490,13 +511,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/drawings/:userId/:symbolId/:timeframe", async (req, res) => {
     try {
       const { userId, symbolId, timeframe } = req.params;
+
+      if (!userId || !symbolId || !timeframe) {
+        return res.status(400).json({ message: "User ID, symbol ID, and timeframe are required" });
+      }
+
       const { from, to } = req.query;
-      
+
       const options = {
-        from: from ? Number(from) : undefined,
-        to: to ? Number(to) : undefined
+        from: from && !isNaN(Number(from)) ? Number(from) : undefined,
+        to: to && !isNaN(Number(to)) ? Number(to) : undefined
       };
-      
+
       const drawings = await storage.getDrawings(userId, symbolId, timeframe, options);
       res.json(drawings);
     } catch (error) {
@@ -524,7 +550,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(drawing);
     } catch (error) {
       console.error('Drawing validation error:', error);
-      res.status(400).json({ message: "Invalid drawing data", error: error instanceof Error ? error.message : String(error) });
+      const message = error instanceof Error ? error.message : "Invalid drawing data";
+      res.status(400).json({
+        message: process.env.NODE_ENV === 'production' ? "Invalid drawing data" : message
+      });
     }
   });
 

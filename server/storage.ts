@@ -80,6 +80,7 @@ export class MemStorage implements IStorage {
   private alerts: Map<string, Alert> = new Map();
   private strategies: Map<string, Strategy> = new Map();
   private backtests: Map<string, Backtest> = new Map();
+  private drawings: Map<string, Drawing> = new Map();
 
   constructor() {
     // Initialize with some default symbols
@@ -97,14 +98,14 @@ export class MemStorage implements IStorage {
 
     defaultSymbols.forEach(symbolData => {
       const id = randomUUID();
-      const symbol: Symbol = { 
-      id, 
-      symbol: symbolData.symbol,
-      name: symbolData.name,
-      type: symbolData.type,
-      exchange: symbolData.exchange || null, 
-      isActive: symbolData.isActive ?? true 
-    };
+      const symbol: Symbol = {
+        id,
+        symbol: symbolData.symbol,
+        name: symbolData.name,
+        type: symbolData.type,
+        exchange: symbolData.exchange,
+        isActive: symbolData.isActive
+      };
       this.symbols.set(id, symbol);
     });
   }
@@ -140,7 +141,12 @@ export class MemStorage implements IStorage {
 
   async createSymbol(insertSymbol: InsertSymbol): Promise<Symbol> {
     const id = randomUUID();
-    const symbol: Symbol = { ...insertSymbol, id };
+    const symbol: Symbol = {
+      ...insertSymbol,
+      id,
+      exchange: insertSymbol.exchange ?? null,
+      isActive: insertSymbol.isActive ?? null
+    };
     this.symbols.set(id, symbol);
     return symbol;
   }
@@ -390,10 +396,46 @@ export class MemStorage implements IStorage {
   async updateBacktest(id: string, updates: Partial<Backtest>): Promise<Backtest> {
     const backtest = this.backtests.get(id);
     if (!backtest) throw new Error('Backtest not found');
-    
+
     const updatedBacktest = { ...backtest, ...updates };
     this.backtests.set(id, updatedBacktest);
     return updatedBacktest;
+  }
+
+  // Drawings
+  async getDrawings(userId: string, symbolId: string, timeframe: string, options?: { from?: number; to?: number }): Promise<Drawing[]> {
+    return Array.from(this.drawings.values())
+      .filter(d => d.userId === userId && d.symbolId === symbolId && d.timeframe === timeframe);
+  }
+
+  async getDrawing(id: string): Promise<Drawing | undefined> {
+    return this.drawings.get(id);
+  }
+
+  async createDrawing(insertDrawing: InsertDrawing): Promise<Drawing> {
+    const id = randomUUID();
+    const drawing: Drawing = {
+      ...insertDrawing,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      bbox: insertDrawing.bbox || null
+    };
+    this.drawings.set(id, drawing);
+    return drawing;
+  }
+
+  async updateDrawing(id: string, updates: UpdateDrawing): Promise<Drawing> {
+    const drawing = this.drawings.get(id);
+    if (!drawing) throw new Error('Drawing not found');
+
+    const updatedDrawing = { ...drawing, ...updates, updatedAt: new Date() };
+    this.drawings.set(id, updatedDrawing);
+    return updatedDrawing;
+  }
+
+  async deleteDrawing(id: string): Promise<void> {
+    this.drawings.delete(id);
   }
 }
 
