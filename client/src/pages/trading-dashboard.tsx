@@ -4,6 +4,7 @@ import Watchlist from "@/components/trading/Watchlist";
 import Portfolio from "@/components/trading/Portfolio";
 import TechnicalIndicators from "@/components/trading/TechnicalIndicators";
 import OrderEntry from "@/components/trading/OrderEntry";
+import OrderPanel from "@/components/trading/OrderPanel";
 import OpenOrders from "@/components/trading/OpenOrders";
 import Positions from "@/components/trading/Positions";
 import TradeHistory from "@/components/trading/TradeHistory";
@@ -123,9 +124,10 @@ export default function TradingDashboard() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar */}
-        <div className="w-80 glassmorphism border-r border-border flex flex-col">
+        <div className="w-80 glassmorphism border-r border-border flex flex-col overflow-y-auto">
           <Watchlist />
           <Portfolio />
+          <OrderPanel />
           <MarketNews />
         </div>
 

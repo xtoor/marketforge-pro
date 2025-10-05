@@ -377,6 +377,10 @@ export default function StrategyEditor() {
                       <span className="text-muted-foreground">Win Rate:</span>
                       <span className="font-mono">{backtestResults.winRate?.toFixed(2)}%</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Profit Factor:</span>
+                      <span className="font-mono">{backtestResults.profitFactor?.toFixed(2)}</span>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -392,6 +396,24 @@ export default function StrategyEditor() {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Final:</span>
                       <span className="font-mono">${backtestResults.finalCapital?.toLocaleString()}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card/50">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Trading</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Total Trades:</span>
+                      <span className="font-mono">{backtestResults.totalTrades}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Avg Trade Return:</span>
+                      <span className={`font-mono ${backtestResults.avgTradeReturn >= 0 ? 'text-secondary' : 'text-destructive'}`}>
+                        {backtestResults.avgTradeReturn?.toFixed(2)}%
+                      </span>
                     </div>
                   </CardContent>
                 </Card>

@@ -48,6 +48,7 @@ export interface IStorage {
   // Alerts
   getAlerts(userId: string): Promise<(Alert & { symbol: Symbol })[]>;
   createAlert(alert: InsertAlert): Promise<Alert>;
+  updateAlert(id: string, updates: Partial<Alert>): Promise<Alert>;
   deleteAlert(id: string): Promise<void>;
 
   // Strategies
@@ -316,6 +317,14 @@ export class MemStorage implements IStorage {
     };
     this.alerts.set(id, alert);
     return alert;
+  }
+
+  async updateAlert(id: string, updates: Partial<Alert>): Promise<Alert> {
+    const alert = this.alerts.get(id);
+    if (!alert) throw new Error("Alert not found");
+    const updated = { ...alert, ...updates };
+    this.alerts.set(id, updated);
+    return updated;
   }
 
   async deleteAlert(id: string): Promise<void> {
@@ -706,6 +715,14 @@ export class DatabaseStorage implements IStorage {
 
   async createAlert(insertAlert: InsertAlert): Promise<Alert> {
     const [alert] = await db.insert(alerts).values(insertAlert).returning();
+    return alert;
+  }
+
+  async updateAlert(id: string, updates: Partial<Alert>): Promise<Alert> {
+    const [alert] = await db.update(alerts)
+      .set(updates)
+      .where(eq(alerts.id, id))
+      .returning();
     return alert;
   }
 

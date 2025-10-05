@@ -42,8 +42,6 @@ export class AlertMonitor {
 
   private async checkAllAlerts(): Promise<void> {
     try {
-      // Get all users with active alerts (in a real app, this would be optimized)
-      // For now, we'll use a placeholder approach
       const symbols = await storage.getSymbols();
 
       for (const symbol of symbols) {
@@ -63,20 +61,38 @@ export class AlertMonitor {
   }
 
   private async checkPriceAlerts(symbolId: string, currentPrice: number): Promise<void> {
-    // In a real implementation, we'd query by symbolId to be efficient
-    // For now, this is a simplified version
     const key = `price_${symbolId}`;
     const previousPrice = this.previousValues.get(key);
 
-    // Get all alerts (in production, filter by symbolId in the query)
-    // This is simplified for demonstration
+    // Get all active alerts for this symbol from storage
+    const allUsers = ['user-1']; // TODO: Get actual users from database
+
+    for (const userId of allUsers) {
+      const alerts = await storage.getAlerts(userId);
+      const symbolAlerts = alerts.filter(
+        (alert: Alert) => alert.symbolId === symbolId && alert.isActive && alert.type === 'price'
+      );
+
+      for (const alert of symbolAlerts) {
+        const targetValue = parseFloat(alert.value);
+        const shouldTrigger = this.checkCondition(
+          alert.condition,
+          currentPrice,
+          targetValue,
+          previousPrice
+        );
+
+        if (shouldTrigger) {
+          await this.triggerAlert(alert, currentPrice);
+
+          // Deactivate the alert after triggering
+          await storage.updateAlert(alert.id, { isActive: false });
+        }
+      }
+    }
 
     // Store current price for next check
     this.previousValues.set(key, currentPrice);
-
-    // Check conditions
-    // Note: In production, you'd get alerts from database filtered by symbolId
-    // and check each one's conditions here
   }
 
   private async triggerAlert(alert: Alert, currentValue: number): Promise<void> {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Bell } from "lucide-react";
 import type { Symbol } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
 
 const mockUserId = "user-1";
 
@@ -18,6 +19,37 @@ export default function Alerts() {
   const [condition, setCondition] = useState('above');
   const [value, setValue] = useState('');
   const [indicator, setIndicator] = useState('');
+  const { toast } = useToast();
+
+  // WebSocket listener for alert notifications
+  useEffect(() => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'alert_triggered') {
+          // Show toast notification
+          toast({
+            title: "🔔 Alert Triggered!",
+            description: `${data.alertType} alert: ${data.condition} ${data.targetValue} (Current: ${data.currentValue})`,
+            variant: "default",
+          });
+
+          // Refresh alerts list to show updated status
+          queryClient.invalidateQueries({ queryKey: ['/api/alerts', mockUserId] });
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+      }
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [toast]);
 
   const { data: alerts = [], isLoading } = useQuery<any[]>({
     queryKey: ['/api/alerts', mockUserId],

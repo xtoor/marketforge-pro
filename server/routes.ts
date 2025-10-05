@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { 
+import {
   insertSymbolSchema, insertMarketDataSchema, insertWatchlistSchema,
   insertOrderSchema, insertPositionSchema, insertAlertSchema,
   insertStrategySchema, insertBacktestSchema, insertDrawingSchema, updateDrawingSchema
@@ -12,6 +12,8 @@ import { spawn } from "child_process";
 import { marketDataService } from "./marketDataService";
 import { executePythonWithJSON } from "./pythonExecutor";
 import { createAlertMonitor } from "./alertMonitor";
+import { register, login, getCurrentUser, authMiddleware, optionalAuthMiddleware, type AuthRequest } from "./auth";
+import { paperTradingEngine } from "./paperTrading";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -103,6 +105,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // API Routes
+
+  // Authentication
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { username, password, email } = req.body;
+
+      if (!username || !password || !email) {
+        return res.status(400).json({ message: "Username, password, and email are required" });
+      }
+
+      const result = await register({ username, password, email });
+      res.json(result);
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(400).json({ message: error instanceof Error ? error.message : "Registration failed" });
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+
+      const result = await login({ username, password });
+      res.json(result);
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(401).json({ message: error instanceof Error ? error.message : "Login failed" });
+    }
+  });
+
+  app.get("/api/auth/me", authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      if (!req.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const user = await getCurrentUser(req.userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ user });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user" });
+    }
+  });
 
   // Symbols
   app.get("/api/symbols", async (req, res) => {
@@ -270,17 +323,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/orders", async (req, res) => {
     try {
       const orderData = insertOrderSchema.parse(req.body);
-      const order = await storage.createOrder(orderData);
-      
+
+      // Get current market price for execution
+      const symbol = await storage.getSymbol(orderData.symbolId);
+      if (!symbol) {
+        return res.status(404).json({ message: "Symbol not found" });
+      }
+
+      // Get latest market data to determine current price
+      const marketData = await storage.getMarketData(orderData.symbolId, '1m', 1);
+      const currentPrice = marketData.length > 0 ? parseFloat(marketData[0].close) : 0;
+
+      if (!currentPrice) {
+        return res.status(400).json({ message: "Unable to determine current market price" });
+      }
+
+      // Execute order using paper trading engine
+      const result = await paperTradingEngine.executeOrder(orderData, currentPrice);
+
+      if (!result.success) {
+        return res.status(400).json({ message: result.message });
+      }
+
       // Broadcast order update via WebSocket
       broadcastMarketData({
-        type: 'order_created',
-        order,
+        type: 'order_executed',
+        order: result.order,
+        position: result.position,
         timestamp: new Date().toISOString()
       });
-      
-      res.json(order);
+
+      res.json({
+        order: result.order,
+        position: result.position,
+        message: result.message
+      });
     } catch (error) {
+      console.error("Order creation error:", error);
       res.status(400).json({ message: "Invalid order data" });
     }
   });
@@ -414,22 +493,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Backtesting
   app.post("/api/backtests/run", async (req, res) => {
     try {
-      // Simple backtest without strategy ID - use python code directly
       const { userId, symbolId, pythonCode, startDate, endDate, initialCapital } = req.body;
-      
-      // Mock results for now (Python engine would return real results)
-      const mockResults = {
-        initialCapital,
-        finalCapital: initialCapital * (1 + Math.random() * 0.5 - 0.2),
-        totalReturn: (Math.random() * 50 - 20).toFixed(2),
-        sharpeRatio: (Math.random() * 2).toFixed(2),
-        maxDrawdown: (Math.random() * -30).toFixed(2),
-        winRate: (40 + Math.random() * 40).toFixed(2),
+
+      // Get market data for the symbol
+      const symbol = await storage.getSymbol(symbolId);
+      if (!symbol) {
+        return res.status(404).json({ message: "Symbol not found" });
+      }
+
+      // Ensure market data exists
+      await marketDataService.ensureMarketDataExists(symbolId, '1h');
+      const marketData = await storage.getMarketData(symbolId, '1h', 500);
+
+      const backtestConfig = {
+        strategyCode: pythonCode,
+        symbol: symbol.symbol,
+        startDate: startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        endDate: endDate || new Date().toISOString(),
+        initialCapital: initialCapital || 10000,
+        marketData: {
+          ohlcv: marketData.map(d => ({
+            timestamp: d.timestamp,
+            open: parseFloat(d.open),
+            high: parseFloat(d.high),
+            low: parseFloat(d.low),
+            close: parseFloat(d.close),
+            volume: parseFloat(d.volume)
+          }))
+        }
       };
-      
-      res.json(mockResults);
+
+      // Run Python backtesting engine
+      const pythonPath = path.join(process.cwd(), 'python', 'backtester.py');
+      const result = await executePythonWithJSON(pythonPath, backtestConfig, { timeout: 60000 });
+
+      if (!result.success) {
+        return res.status(500).json({
+          message: "Backtest failed",
+          error: result.error
+        });
+      }
+
+      const results = result.data;
+
+      // Return enhanced metrics
+      res.json({
+        ...results.statistics,
+        initialCapital: backtestConfig.initialCapital,
+        finalCapital: results.statistics.final_capital,
+        totalReturn: results.statistics.total_return,
+        sharpeRatio: results.statistics.sharpe_ratio,
+        maxDrawdown: results.statistics.max_drawdown,
+        winRate: results.statistics.win_rate,
+        profitFactor: results.statistics.profit_factor,
+        totalTrades: results.statistics.total_trades,
+        avgTradeReturn: results.statistics.avg_trade_return,
+        equityCurve: results.equity_curve,
+        drawdownCurve: results.drawdown_curve,
+        trades: results.trades,
+        signals: results.signals
+      });
     } catch (error) {
-      res.status(500).json({ message: "Backtest failed" });
+      console.error("Backtest error:", error);
+      res.status(500).json({ message: "Backtest failed", error: String(error) });
     }
   });
 
