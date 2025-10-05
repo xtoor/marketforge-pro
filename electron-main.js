@@ -1,5 +1,5 @@
 // electron-main.js
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import url from 'url';
 
@@ -10,9 +10,10 @@ function createWindow() {
     width: 1280,
     height: 800,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
+    }
   });
 
   // Load the React app
@@ -35,4 +36,14 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (mainWindow === null) createWindow();
+});
+
+// IPC handlers for secure communication with renderer
+ipcMain.handle('get-version', () => {
+  return app.getVersion();
+});
+
+ipcMain.handle('show-message', (event, message) => {
+  console.log('Message from renderer:', message);
+  return `Received: ${message}`;
 });
