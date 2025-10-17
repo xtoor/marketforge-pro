@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarketForge Pro - First-Time Setup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .wizard-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      width: 700px;
+      max-width: 90%;
+      overflow: hidden;
+    }
+
+    .wizard-header {
+      background: #667eea;
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .wizard-header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .wizard-header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .wizard-content {
+      padding: 40px;
+    }
+
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step h2 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: #667eea;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="password"],
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e1e8ed;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 10px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .help-text {
+      font-size: 12px;
+      color: #777;
+      margin-top: 5px;
+    }
+
+    .wizard-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #f0f0f0;
+    }
+
+    button {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button.btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    button.btn-secondary {
+      background: #e1e8ed;
+      color: #555;
+    }
+
+    button.btn-secondary:hover {
+      background: #d1d8dd;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: #e1e8ed;
+      margin-bottom: 0;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: #667eea;
+      transition: width 0.3s ease;
+    }
+
+    .feature-card {
+      background: #f8f9fa;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .feature-card h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .success-icon {
+      font-size: 64px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    .alert-info {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      color: #1976d2;
+    }
+
+    .alert-warning {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      color: #856404;
+    }
+  </style>
+</head>
+<body>
+  <div class="wizard-container">
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="progressBar" style="width: 20%;"></div>
+    </div>
+
+    <div class="wizard-header">
+      <h1>🚀 Welcome to MarketForge Pro</h1>
+      <p>Let's get you set up in just a few steps</p>
+    </div>
+
+    <div class="wizard-content">
+      <!-- Step 1: Welcome -->
+      <div class="step active" data-step="1">
+        <h2>Welcome!</h2>
+        <p>MarketForge Pro is an advanced financial visualization platform with TradingView integration, Pine Script execution, and multi-broker support.</p>
+
+        <div class="alert alert-info" style="margin-top: 20px;">
+          <strong>📋 What you'll configure:</strong>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>Optional API keys for broker integrations</li>
+            <li>Feature preferences</li>
+            <li>Performance settings</li>
+          </ul>
+        </div>
+
+        <p style="margin-top: 20px; color: #666;">This wizard will help you configure the application. You can always change these settings later.</p>
+      </div>
+
+      <!-- Step 2: Features -->
+      <div class="step" data-step="2">
+        <h2>Select Features</h2>
+        <p style="margin-bottom: 20px;">Choose which features you'd like to enable:</p>
+
+        <div class="feature-card">
+          <div class="checkbox-group">
+            <input type="checkbox" id="enableBrokers" name="features">
+            <div>
+              <h3>Multi-Broker Integration</h3>
+              <p class="help-text">Connect to Kraken, Coinbase, Binance, and Gemini for live trading data</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="checkbox-group">
+            <input type="checkbox" id="enableResonance" name="features" checked>
+            <div>
+              <h3>Resonance.ai Scanner</h3>
+              <p class="help-text">Real-time market scanning and alert notifications</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="checkbox-group">
+            <input type="checkbox" id="enableML" name="features" checked>
+            <div>
+              <h3>ML Strategy Predictions</h3>
+              <p class="help-text">PyTorch-powered machine learning trading strategies</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <strong>Note:</strong> Broker integration requires API keys. You'll configure these in the next step if enabled.
+        </div>
+      </div>
+
+      <!-- Step 3: API Keys (conditional) -->
+      <div class="step" data-step="3">
+        <h2>API Configuration (Optional)</h2>
+        <p style="margin-bottom: 20px;">Configure your broker API keys. Leave blank to use demo data.</p>
+
+        <div class="form-group">
+          <label>CoinGecko API Key (Free tier available)</label>
+          <input type="text" id="coingeckoKey" placeholder="Optional - for enhanced price data">
+          <p class="help-text">Get your free key at: coingecko.com/en/api</p>
+        </div>
+
+        <div id="brokerKeysSection" style="display: none;">
+          <h3 style="margin: 20px 0 15px 0; color: #667eea;">Broker API Keys</h3>
+
+          <div class="form-group">
+            <label>Kraken API Key</label>
+            <input type="text" id="krakenKey" placeholder="API Key">
+          </div>
+
+          <div class="form-group">
+            <label>Kraken API Secret</label>
+            <input type="password" id="krakenSecret" placeholder="API Secret">
+          </div>
+
+          <div class="alert alert-info">
+            <strong>💡 Security:</strong> Your API keys are encrypted and stored locally. They never leave your computer.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Performance -->
+      <div class="step" data-step="4">
+        <h2>Performance Settings</h2>
+
+        <div class="form-group">
+          <label>Chart Theme</label>
+          <select id="chartTheme">
+            <option value="dark" selected>Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Maximum Chart Candles</label>
+          <select id="maxCandles">
+            <option value="1000">1,000 (Faster)</option>
+            <option value="5000" selected>5,000 (Balanced)</option>
+            <option value="10000">10,000 (Slower)</option>
+          </select>
+          <p class="help-text">Higher values provide more historical data but may impact performance</p>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="enableCache" checked>
+          <label>Enable chart caching for better performance</label>
+        </div>
+      </div>
+
+      <!-- Step 5: Complete -->
+      <div class="step" data-step="5">
+        <div class="success-icon">✅</div>
+        <h2 style="text-align: center;">Setup Complete!</h2>
+        <p style="text-align: center; margin-bottom: 30px;">MarketForge Pro is ready to use</p>
+
+        <div class="feature-card">
+          <h3>🎯 Next Steps:</h3>
+          <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+            <li>Explore the Pine Script editor</li>
+            <li>Try paper trading strategies</li>
+            <li>Configure chart indicators</li>
+            <li>Set up price alerts</li>
+          </ul>
+        </div>
+
+        <div class="alert alert-info">
+          <strong>📚 Documentation:</strong> Visit our docs at localhost:8000/docs after launching the app
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="wizard-actions">
+        <button class="btn-secondary" id="btnPrev" onclick="previousStep()">← Previous</button>
+        <button class="btn-primary" id="btnNext" onclick="nextStep()">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    function showStep(step) {
+      // Hide all steps
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+
+      // Show current step
+      document.querySelector(`.step[data-step="${step}"]`).classList.add('active');
+
+      // Update progress bar
+      const progress = (step / totalSteps) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+
+      // Update buttons
+      document.getElementById('btnPrev').style.display = step === 1 ? 'none' : 'block';
+      document.getElementById('btnNext').textContent = step === totalSteps ? 'Finish' : 'Next →';
+
+      // Show broker keys section if enabled
+      if (step === 3) {
+        const brokersEnabled = document.getElementById('enableBrokers').checked;
+        document.getElementById('brokerKeysSection').style.display = brokersEnabled ? 'block' : 'none';
+      }
+    }
+
+    function nextStep() {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        showStep(currentStep);
+      } else {
+        completeSetup();
+      }
+    }
+
+    function previousStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    }
+
+    function completeSetup() {
+      const config = {
+        ENABLE_BROKERS: document.getElementById('enableBrokers').checked,
+        ENABLE_RESONANCE: document.getElementById('enableResonance').checked,
+        ENABLE_ML_STRATEGIES: document.getElementById('enableML').checked,
+        COINGECKO_API_KEY: document.getElementById('coingeckoKey').value,
+        TRADINGVIEW_CHART_THEME: document.getElementById('chartTheme').value,
+        MAX_CHART_CANDLES: parseInt(document.getElementById('maxCandles').value),
+        ENABLE_CHART_CACHE: document.getElementById('enableCache').checked,
+      };
+
+      // Add broker keys if enabled
+      if (config.ENABLE_BROKERS) {
+        config.KRAKEN_API_KEY = document.getElementById('krakenKey').value;
+        config.KRAKEN_API_SECRET = document.getElementById('krakenSecret').value;
+      }
+
+      // Send config to main process
+      window.electronAPI.send('setup-completed', config);
+    }
+
+    // Initialize
+    showStep(1);
+  </script>
+</body>
+</html>

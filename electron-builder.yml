@@ -1,0 +1,106 @@
+# Electron Builder Configuration
+# For building Windows/Mac/Linux installers
+
+appId: com.marketforge.pro
+productName: MarketForge Pro
+copyright: Copyright © 2025 MarketForge Pro Team
+
+# Directories
+directories:
+  output: release
+  buildResources: electron/assets
+
+# Files to include
+files:
+  - dist/**/*
+  - electron/**/*
+  - backend/**/*
+  - "!backend/**/__pycache__"
+  - "!backend/**/*.pyc"
+  - "!**/*.map"
+  - "!**/.git*"
+  - node_modules/**/*
+
+# Extra resources
+extraResources:
+  - from: python-runtime
+    to: python
+    filter:
+      - "**/*"
+
+# Windows configuration
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  icon: electron/assets/icon.ico
+  publisherName: MarketForge Pro Team
+  verifyUpdateCodeSignature: false
+
+# NSIS installer configuration
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: MarketForge Pro
+  installerIcon: electron/assets/icon.ico
+  uninstallerIcon: electron/assets/icon.ico
+  installerHeader: electron/assets/installer-header.bmp
+  installerSidebar: electron/assets/installer-sidebar.bmp
+  license: LICENSE
+  runAfterFinish: true
+  menuCategory: true
+  perMachine: false
+
+# Mac configuration
+mac:
+  target:
+    - dmg
+    - zip
+  icon: electron/assets/icon.icns
+  category: public.app-category.finance
+  hardenedRuntime: true
+  gatekeeperAssess: false
+
+# DMG configuration
+dmg:
+  background: electron/assets/dmg-background.png
+  iconSize: 100
+  contents:
+    - x: 410
+      y: 150
+      type: link
+      path: /Applications
+    - x: 130
+      y: 150
+      type: file
+
+# Linux configuration
+linux:
+  target:
+    - AppImage
+    - deb
+  icon: electron/assets/icon.png
+  category: Finance
+  synopsis: Advanced Financial Visualization Platform
+  description: MarketForge Pro - TradingView integration, Pine Script execution, and multi-broker support
+
+# Auto-update configuration
+publish:
+  provider: github
+  owner: marketforge-pro
+  repo: marketforge-pro
+  releaseType: release
+
+# Compression
+compression: maximum
+
+# App metadata
+extraMetadata:
+  name: marketforge-pro
+  main: electron/main.js

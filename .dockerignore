@@ -1,0 +1,80 @@
+# Git
+.git
+.gitignore
+.gitattributes
+.gitmodules
+
+# Documentation
+*.md
+docs/
+LICENSE
+CONTRIBUTING.md
+SECURITY.md
+
+# Build artifacts
+node_modules/
+dist/
+dist-electron/
+release/
+out/
+build/
+.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+*.egg-info/
+
+# Logs
+*.log
+logs/
+/tmp/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage/
+.nyc_output/
+
+# Electron
+electron/
+python-runtime/
+electron-builder.yml
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+marketforge.db*
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Scripts
+setup.sh
+start-servers.sh
+build-windows.sh
+VERIFY.sh
+test_pinescript_integration.py

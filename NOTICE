@@ -1,0 +1,142 @@
+MarketForge Pro
+Copyright 2025 MarketForge Pro Team
+
+This product includes software developed by the MarketForge Pro Team.
+
+================================================================================
+
+This software contains code from the following open source projects:
+
+================================================================================
+FastAPI
+https://github.com/tiangolo/fastapi
+Copyright (c) 2018 Sebastián Ramírez
+Licensed under the MIT License
+
+================================================================================
+React
+https://github.com/facebook/react
+Copyright (c) Meta Platforms, Inc. and affiliates.
+Licensed under the MIT License
+
+================================================================================
+TradingView Lightweight Charts
+https://github.com/tradingview/lightweight-charts
+Copyright (c) 2019 TradingView, Inc.
+Licensed under the Apache License 2.0
+
+================================================================================
+ccxt - CryptoCurrency eXchange Trading Library
+https://github.com/ccxt/ccxt
+Copyright (c) 2017 Igor Kroitor
+Licensed under the MIT License
+
+================================================================================
+Vite
+https://github.com/vitejs/vite
+Copyright (c) 2019-present, Yuxi (Evan) You and Vite contributors
+Licensed under the MIT License
+
+================================================================================
+Electron
+https://github.com/electron/electron
+Copyright (c) 2013-2020 GitHub Inc.
+Licensed under the MIT License
+
+================================================================================
+Zustand
+https://github.com/pmndrs/zustand
+Copyright (c) 2019 Paul Henschel
+Licensed under the MIT License
+
+================================================================================
+React Query (TanStack Query)
+https://github.com/TanStack/query
+Copyright (c) 2021-present Tanner Linsley
+Licensed under the MIT License
+
+================================================================================
+Axios
+https://github.com/axios/axios
+Copyright (c) 2014-present Matt Zabriskie
+Licensed under the MIT License
+
+================================================================================
+TA-Lib (Technical Analysis Library)
+https://ta-lib.org/
+Copyright (c) 1999-2007 Mario Fortier
+Licensed under the BSD 3-Clause License
+
+================================================================================
+Pydantic
+https://github.com/pydantic/pydantic
+Copyright (c) 2017 to present Samuel Colvin and other contributors
+Licensed under the MIT License
+
+================================================================================
+SQLAlchemy
+https://github.com/sqlalchemy/sqlalchemy
+Copyright (c) 2005-2024 Michael Bayer and contributors
+Licensed under the MIT License
+
+================================================================================
+Uvicorn
+https://github.com/encode/uvicorn
+Copyright (c) 2017-present, Encode OSS Ltd. All rights reserved.
+Licensed under the BSD 3-Clause License
+
+================================================================================
+TypeScript
+https://github.com/microsoft/TypeScript
+Copyright (c) Microsoft Corporation
+Licensed under the Apache License 2.0
+
+================================================================================
+PyTorch
+https://github.com/pytorch/pytorch
+Copyright (c) 2016-present, Facebook, Inc. and its affiliates.
+Licensed under the BSD 3-Clause License
+
+================================================================================
+Stable-Baselines3
+https://github.com/DLR-RM/stable-baselines3
+Copyright (c) 2019 Antonin Raffin
+Licensed under the MIT License
+
+================================================================================
+
+ADDITIONAL ATTRIBUTIONS
+================================================================================
+
+This project uses data from the following sources:
+
+- CoinGecko API (https://www.coingecko.com/)
+  Market data and cryptocurrency information
+
+- Alpha Vantage (https://www.alphavantage.co/)
+  Optional financial data source
+
+Icons and Graphics:
+- App icons created using resources from Flaticon (https://www.flaticon.com/)
+
+================================================================================
+
+DISCLAIMER
+================================================================================
+
+THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+Trading and investment in cryptocurrencies and financial instruments carries
+significant risk. Past performance is not indicative of future results.
+MarketForge Pro is a visualization and analysis tool only and does not provide
+financial advice. Users are solely responsible for their trading decisions.
+
+================================================================================
+
+For the full list of dependencies and their licenses, please refer to:
+- backend/requirements.txt (Python dependencies)
+- package.json (Node.js dependencies)
+
+For license details of this project, see the LICENSE file in the root directory.

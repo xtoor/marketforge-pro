@@ -1,0 +1,81 @@
+# MarketForge Pro - Docker Compose Configuration
+# For local development and production deployment
+
+version: '3.8'
+
+services:
+  # MarketForge Pro API
+  marketforge-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: marketforge-pro-api
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+      - DATABASE_URL=sqlite:////data/marketforge.db
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:80
+      - ENABLE_BROKERS=false
+      - ENABLE_RESONANCE=true
+      - ENABLE_ML_STRATEGIES=true
+      # Add your API keys via .env file
+      - COINGECKO_API_KEY=${COINGECKO_API_KEY:-}
+      - KRAKEN_API_KEY=${KRAKEN_API_KEY:-}
+      - KRAKEN_API_SECRET=${KRAKEN_API_SECRET:-}
+    volumes:
+      - marketforge-data:/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - marketforge-network
+
+  # Nginx reverse proxy (optional, for production)
+  nginx:
+    image: nginx:alpine
+    container_name: marketforge-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./dist:/usr/share/nginx/html:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - marketforge-api
+    restart: unless-stopped
+    networks:
+      - marketforge-network
+
+  # PostgreSQL (optional, for production with persistent storage)
+  # Uncomment to use PostgreSQL instead of SQLite
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: marketforge-postgres
+  #   environment:
+  #     - POSTGRES_DB=marketforge
+  #     - POSTGRES_USER=marketforge
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - marketforge-network
+
+volumes:
+  marketforge-data:
+    driver: local
+  # postgres-data:
+  #   driver: local
+
+networks:
+  marketforge-network:
+    driver: bridge

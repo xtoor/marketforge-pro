@@ -1,0 +1,9 @@
+[submodule "frontend/src/tradingview/lightweight-charts"]
+	path = frontend/src/tradingview/lightweight-charts
+	url = https://github.com/tradingview/lightweight-charts.git
+	branch = master
+
+[submodule "backend/resonance"]
+	path = backend/resonance
+	url = https://github.com/resonance-ai/scanner-v13.git
+	branch = main

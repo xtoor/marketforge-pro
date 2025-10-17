@@ -1,0 +1,41 @@
+# Core FastAPI dependencies
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Broker integrations (optional, toggled via ENABLE_BROKERS)
+ccxt>=4.2.0
+
+# ML/Trading ecosystem (made flexible for compatibility)
+pandas>=2.1.0
+numpy>=1.26.0
+torch>=2.1.0
+stable-baselines3>=2.2.0
+# ta-lib requires system dependencies, skip for now
+# ta-lib==0.4.28
+
+# Data fetching
+requests==2.31.0
+aiohttp==3.9.1
+websockets==12.0
+
+# Database (optional)
+sqlalchemy==2.0.25
+alembic==1.13.1
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.23.2
+pytest-cov==4.1.0
+httpx==0.26.0
+
+# Utilities
+python-dotenv==1.0.0
+python-multipart==0.0.6
+
+# Pine Script translation (pine2py dependencies)
+ply>=3.11
+python-dateutil>=2.8
+matplotlib>=3.7
+ta-lib>=0.4.28  # Requires system TA-Lib library

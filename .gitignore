@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+.cache/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+/tmp/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Build artifacts
+*.tgz
+.npm
+.eslintcache
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Project specific
+*.db
+*.sqlite
+*.sqlite3
+marketforge.db
+marketforge.db-journal
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Electron
+dist-electron/
+out/
+release/
+*.exe
+*.msi
+*.dmg
+*.AppImage
+
+# Files excluded from GitHub (internal/development only)
+.excluded-from-github/
+CLAUDE.md
