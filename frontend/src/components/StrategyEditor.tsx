@@ -458,7 +458,7 @@ export const StrategyEditor: React.FC<StrategyEditorProps> = ({
                 color: '#888',
                 fontSize: '13px'
               }}>
-                Click "Backtest" to test your strategy against historical data
+                Click &quot;Backtest&quot; to test your strategy against historical data
               </div>
             )}
           </div>
@@ -474,7 +474,7 @@ export const StrategyEditor: React.FC<StrategyEditorProps> = ({
         color: '#888',
         lineHeight: '1.6'
       }}>
-        <strong>💡 Tips:</strong> Use pandas DataFrame methods for indicators. Available: close, open, high, low, volume columns. Return signals as list of dicts with time, side ('buy'/'sell'), and quantity.
+        <strong>💡 Tips:</strong> Use pandas DataFrame methods for indicators. Available: close, open, high, low, volume columns. Return signals as list of dicts with time, side (&apos;buy&apos;/&apos;sell&apos;), and quantity.
       </div>
     </div>
   );
