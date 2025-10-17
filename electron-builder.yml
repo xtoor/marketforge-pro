@@ -40,6 +40,8 @@ win:
   icon: electron/assets/icon.ico
   publisherName: MarketForge Pro Team
   verifyUpdateCodeSignature: false
+  sign: null
+  signingHashAlgorithms: []
 
 # NSIS installer configuration
 nsis:

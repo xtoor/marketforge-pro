@@ -13,7 +13,7 @@ import {
   ISeriesPrimitivePaneRenderer,
   Coordinate,
 } from 'lightweight-charts';
-import { positionsLine, setLineStyle } from './helpers';
+import { positionsLine } from './helpers';
 
 export interface HorizontalLineOptions {
   price: number;

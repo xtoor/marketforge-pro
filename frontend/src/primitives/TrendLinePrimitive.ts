@@ -13,7 +13,7 @@ import {
   ISeriesPrimitivePaneRenderer,
   Coordinate,
 } from 'lightweight-charts';
-import { positionsLine, setLineStyle } from './helpers';
+import { setLineStyle } from './helpers';
 
 export interface TrendLinePoint {
   time: Time;

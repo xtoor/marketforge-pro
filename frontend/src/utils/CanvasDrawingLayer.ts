@@ -9,7 +9,7 @@
  */
 
 import { IChartApi, ISeriesApi, Time } from 'lightweight-charts';
-import { Drawing, Point } from './DrawingManager';
+import { Drawing } from './DrawingManager';
 
 export class CanvasDrawingLayer {
   private canvas: HTMLCanvasElement;

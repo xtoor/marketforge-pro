@@ -54,7 +54,7 @@ export interface DrawingStorage {
 }
 
 export class DrawingManager {
-  private chart: IChartApi;
+  public _chart: IChartApi;
   private series: ISeriesApi<'Candlestick'>;
   private drawings: Map<string, Drawing> = new Map();
   private primitives: Map<string, ISeriesPrimitive<Time>> = new Map();
@@ -63,7 +63,7 @@ export class DrawingManager {
   private storageKey: string;
 
   constructor(chart: IChartApi, series: ISeriesApi<'Candlestick'>, symbol: string) {
-    this.chart = chart;
+    this._chart = chart;
     this.series = series;
     this.storageKey = `chart-drawings-${symbol}`;
 
