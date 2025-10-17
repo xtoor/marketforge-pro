@@ -52,8 +52,6 @@ nsis:
   shortcutName: MarketForge Pro
   installerIcon: electron/assets/icon.ico
   uninstallerIcon: electron/assets/icon.ico
-  installerHeader: electron/assets/installer-header.bmp
-  installerSidebar: electron/assets/installer-sidebar.bmp
   license: LICENSE
   runAfterFinish: true
   menuCategory: true
